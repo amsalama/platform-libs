@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Compiled JS (TypeScript project - should never exist in src/)
+src/**/*.js
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+tmpclaude-*
+*.log
+
+# Test coverage
+coverage/
+
+# Vite
+vite.config.js
+vite.config.d.ts

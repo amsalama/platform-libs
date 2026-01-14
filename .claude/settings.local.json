@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "C:\\Users\\aelka\\Documents\\work\\craft-crew"
+    ],
+    "allow": [
+      "WebFetch(domain:172.174.47.198)"
+    ]
+  }
+}
