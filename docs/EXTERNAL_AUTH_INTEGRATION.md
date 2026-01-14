@@ -41,13 +41,13 @@ Wildcard subdomains are supported (e.g., `*.acme.com` matches `app.acme.com`, `d
 
 Redirect users to the auth platform's `/sso` endpoint with the following query parameters:
 
-| Parameter | Required | Description |
-|-----------|----------|-------------|
-| `redirect_uri` | Yes | URL to redirect back to after authentication (must be in allowlist) |
-| `client_id` | Yes | Your application's client identifier |
-| `state` | Recommended | Random string for CSRF protection (returned unchanged in redirect) |
-| `response_type` | No | `code` (default) or `token` |
-| `code_challenge` | No | PKCE code challenge for enhanced security |
+| Parameter        | Required    | Description                                                         |
+| ---------------- | ----------- | ------------------------------------------------------------------- |
+| `redirect_uri`   | Yes         | URL to redirect back to after authentication (must be in allowlist) |
+| `client_id`      | Yes         | Your application's client identifier                                |
+| `state`          | Recommended | Random string for CSRF protection (returned unchanged in redirect)  |
+| `response_type`  | No          | `code` (default) or `token`                                         |
+| `code_challenge` | No          | PKCE code challenge for enhanced security                           |
 
 **Example Redirect URL:**
 
@@ -83,16 +83,16 @@ https://app.yourcompany.com/auth/callback?
 
 ```typescript
 // POST to the auth platform's token endpoint
-const response = await fetch('https://auth.craftcrew.io/api/v1/auth/token', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const response = await fetch("https://auth.craftcrew.io/api/v1/auth/token", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    grant_type: 'authorization_code',
-    code: '<authorization_code>',
-    client_id: 'your-app-id',
-    redirect_uri: 'https://app.yourcompany.com/auth/callback',
-    code_verifier: '<pkce_verifier>' // if using PKCE
-  })
+    grant_type: "authorization_code",
+    code: "<authorization_code>",
+    client_id: "your-app-id",
+    redirect_uri: "https://app.yourcompany.com/auth/callback",
+    code_verifier: "<pkce_verifier>", // if using PKCE
+  }),
 });
 
 const tokens = await response.json();
@@ -118,14 +118,14 @@ https://app.yourcompany.com/auth/callback?
 ```typescript
 // Before initiating SSO
 const state = crypto.randomUUID();
-sessionStorage.setItem('oauth_state', state);
+sessionStorage.setItem("oauth_state", state);
 
 // In callback handler
-const returnedState = new URL(window.location.href).searchParams.get('state');
-const expectedState = sessionStorage.getItem('oauth_state');
+const returnedState = new URL(window.location.href).searchParams.get("state");
+const expectedState = sessionStorage.getItem("oauth_state");
 
 if (returnedState !== expectedState) {
-  throw new Error('Invalid state parameter - potential CSRF attack');
+  throw new Error("Invalid state parameter - potential CSRF attack");
 }
 ```
 
@@ -138,8 +138,8 @@ if (returnedState !== expectedState) {
 ```typescript
 // auth.ts - Authentication utilities for external app
 
-const AUTH_PLATFORM_URL = 'https://auth.craftcrew.io';
-const CLIENT_ID = 'your-app-id';
+const AUTH_PLATFORM_URL = "https://auth.craftcrew.io";
+const CLIENT_ID = "your-app-id";
 const REDIRECT_URI = `${window.location.origin}/auth/callback`;
 
 /**
@@ -147,14 +147,14 @@ const REDIRECT_URI = `${window.location.origin}/auth/callback`;
  */
 export function initiateSSO(): void {
   const state = crypto.randomUUID();
-  sessionStorage.setItem('oauth_state', state);
-  
+  sessionStorage.setItem("oauth_state", state);
+
   const ssoUrl = new URL(`${AUTH_PLATFORM_URL}/sso`);
-  ssoUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-  ssoUrl.searchParams.set('client_id', CLIENT_ID);
-  ssoUrl.searchParams.set('state', state);
-  ssoUrl.searchParams.set('response_type', 'code');
-  
+  ssoUrl.searchParams.set("redirect_uri", REDIRECT_URI);
+  ssoUrl.searchParams.set("client_id", CLIENT_ID);
+  ssoUrl.searchParams.set("state", state);
+  ssoUrl.searchParams.set("response_type", "code");
+
   window.location.href = ssoUrl.toString();
 }
 
@@ -167,53 +167,53 @@ export async function handleCallback(): Promise<{
   expiresIn: number;
 }> {
   const params = new URLSearchParams(window.location.search);
-  
+
   // Check for errors
-  const error = params.get('error');
+  const error = params.get("error");
   if (error) {
-    throw new Error(params.get('error_description') || error);
+    throw new Error(params.get("error_description") || error);
   }
-  
+
   // Validate state
-  const state = params.get('state');
-  const expectedState = sessionStorage.getItem('oauth_state');
-  sessionStorage.removeItem('oauth_state');
-  
+  const state = params.get("state");
+  const expectedState = sessionStorage.getItem("oauth_state");
+  sessionStorage.removeItem("oauth_state");
+
   if (state !== expectedState) {
-    throw new Error('Invalid state parameter');
+    throw new Error("Invalid state parameter");
   }
-  
+
   // Handle direct token response
-  const accessToken = params.get('access_token');
+  const accessToken = params.get("access_token");
   if (accessToken) {
     return {
       accessToken,
-      expiresIn: Number(params.get('expires_in')) || 3600,
+      expiresIn: Number(params.get("expires_in")) || 3600,
     };
   }
-  
+
   // Handle authorization code response
-  const code = params.get('code');
+  const code = params.get("code");
   if (!code) {
-    throw new Error('No authorization code or token in callback');
+    throw new Error("No authorization code or token in callback");
   }
-  
+
   // Exchange code for tokens
   const response = await fetch(`${AUTH_PLATFORM_URL}/api/v1/auth/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
       client_id: CLIENT_ID,
       redirect_uri: REDIRECT_URI,
     }),
   });
-  
+
   if (!response.ok) {
-    throw new Error('Failed to exchange authorization code');
+    throw new Error("Failed to exchange authorization code");
   }
-  
+
   return response.json();
 }
 
@@ -225,11 +225,12 @@ export function storeTokens(tokens: {
   refreshToken?: string;
   expiresIn: number;
 }): void {
-  sessionStorage.setItem('access_token', tokens.accessToken);
+  sessionStorage.setItem("access_token", tokens.accessToken);
   if (tokens.refreshToken) {
-    sessionStorage.setItem('refresh_token', tokens.refreshToken);
+    sessionStorage.setItem("refresh_token", tokens.refreshToken);
   }
-  sessionStorage.setItem('token_expiry', 
+  sessionStorage.setItem(
+    "token_expiry",
     String(Date.now() + tokens.expiresIn * 1000)
   );
 }
@@ -238,12 +239,12 @@ export function storeTokens(tokens: {
  * Get current access token
  */
 export function getAccessToken(): string | null {
-  const token = sessionStorage.getItem('access_token');
-  const expiry = sessionStorage.getItem('token_expiry');
-  
+  const token = sessionStorage.getItem("access_token");
+  const expiry = sessionStorage.getItem("token_expiry");
+
   if (!token || !expiry) return null;
   if (Date.now() > Number(expiry)) return null;
-  
+
   return token;
 }
 
@@ -258,9 +259,9 @@ export function isAuthenticated(): boolean {
  * Logout - clear local tokens
  */
 export function logout(): void {
-  sessionStorage.removeItem('access_token');
-  sessionStorage.removeItem('refresh_token');
-  sessionStorage.removeItem('token_expiry');
+  sessionStorage.removeItem("access_token");
+  sessionStorage.removeItem("refresh_token");
+  sessionStorage.removeItem("token_expiry");
 }
 ```
 
@@ -268,9 +269,9 @@ export function logout(): void {
 
 ```tsx
 // CallbackPage.tsx
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { handleCallback, storeTokens } from './auth';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { handleCallback, storeTokens } from "./auth";
 
 export function CallbackPage() {
   const navigate = useNavigate();
@@ -281,12 +282,12 @@ export function CallbackPage() {
       try {
         const tokens = await handleCallback();
         storeTokens(tokens);
-        navigate('/', { replace: true });
+        navigate("/", { replace: true });
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Authentication failed');
+        setError(err instanceof Error ? err.message : "Authentication failed");
       }
     }
-    
+
     processCallback();
   }, [navigate]);
 
@@ -295,7 +296,7 @@ export function CallbackPage() {
       <div className="error">
         <h2>Authentication Failed</h2>
         <p>{error}</p>
-        <button onClick={() => navigate('/login')}>Try Again</button>
+        <button onClick={() => navigate("/login")}>Try Again</button>
       </div>
     );
   }
@@ -308,13 +309,13 @@ export function CallbackPage() {
 
 ```tsx
 // LoginButton.tsx
-import { initiateSSO, isAuthenticated, logout } from './auth';
+import { initiateSSO, isAuthenticated, logout } from "./auth";
 
 export function LoginButton() {
   if (isAuthenticated()) {
     return <button onClick={logout}>Logout</button>;
   }
-  
+
   return <button onClick={initiateSSO}>Sign in with CraftCrew</button>;
 }
 ```
@@ -325,34 +326,37 @@ export function LoginButton() {
 
 ### Authentication Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/auth/login` | POST | Direct login with credentials |
-| `/api/v1/auth/register` | POST | Register new user |
-| `/api/v1/auth/refresh` | POST | Refresh access token |
-| `/api/v1/auth/logout` | POST | Revoke refresh token |
-| `/api/v1/auth/introspect` | POST | Validate token claims |
-| `/api/v1/auth/userinfo` | GET | Get user profile from IdP |
-| `/api/v1/auth/me` | GET | Get current user profile |
+| Endpoint                  | Method | Description                   |
+| ------------------------- | ------ | ----------------------------- |
+| `/api/v1/auth/login`      | POST   | Direct login with credentials |
+| `/api/v1/auth/register`   | POST   | Register new user             |
+| `/api/v1/auth/refresh`    | POST   | Refresh access token          |
+| `/api/v1/auth/logout`     | POST   | Revoke refresh token          |
+| `/api/v1/auth/introspect` | POST   | Validate token claims         |
+| `/api/v1/auth/userinfo`   | GET    | Get user profile from IdP     |
+| `/api/v1/auth/me`         | GET    | Get current user profile      |
 
 ### SSO Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/sso` | GET | Initiate SSO flow (with query params) |
-| `/callback` | GET | OAuth callback handler |
+| Endpoint    | Method | Description                           |
+| ----------- | ------ | ------------------------------------- |
+| `/sso`      | GET    | Initiate SSO flow (with query params) |
+| `/callback` | GET    | OAuth callback handler                |
 
 ### Making Authenticated API Calls
 
 After obtaining tokens, include the access token in all API requests:
 
 ```typescript
-const response = await fetch('https://api.craftcrew.io/api/v1/protected-resource', {
-  headers: {
-    'Authorization': `Bearer ${accessToken}`,
-    'X-Tenant-ID': tenantId, // Optional: for multi-tenant operations
-  },
-});
+const response = await fetch(
+  "https://api.craftcrew.io/api/v1/protected-resource",
+  {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "X-Tenant-ID": tenantId, // Optional: for multi-tenant operations
+    },
+  }
+);
 ```
 
 ---
@@ -362,6 +366,7 @@ const response = await fetch('https://api.craftcrew.io/api/v1/protected-resource
 ### CSRF Protection
 
 Always use the `state` parameter:
+
 - Generate a cryptographically random string before redirect
 - Store it in sessionStorage
 - Validate it matches when handling the callback
@@ -382,22 +387,23 @@ const codeVerifier = generateRandomString(128);
 const codeChallenge = await sha256(codeVerifier);
 
 // Store verifier for later
-sessionStorage.setItem('pkce_verifier', codeVerifier);
+sessionStorage.setItem("pkce_verifier", codeVerifier);
 
 // Add to SSO URL
-ssoUrl.searchParams.set('code_challenge', codeChallenge);
-ssoUrl.searchParams.set('code_challenge_method', 'S256');
+ssoUrl.searchParams.set("code_challenge", codeChallenge);
+ssoUrl.searchParams.set("code_challenge_method", "S256");
 
 // Include in token exchange
 body: JSON.stringify({
   ...otherParams,
-  code_verifier: sessionStorage.getItem('pkce_verifier'),
-})
+  code_verifier: sessionStorage.getItem("pkce_verifier"),
+});
 ```
 
 ### Allowed Redirect Domains
 
 The auth platform validates redirect URIs against an allowlist:
+
 - Only HTTPS URLs are accepted in production
 - Domains must be explicitly configured
 - Wildcard subdomains supported with `*.domain.com`
@@ -448,10 +454,10 @@ Ensure both `redirect_uri` and `client_id` are provided in the SSO URL.
 Implement token refresh logic:
 
 ```typescript
-const refreshToken = sessionStorage.getItem('refresh_token');
-const response = await fetch('/api/v1/auth/refresh', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+const refreshToken = sessionStorage.getItem("refresh_token");
+const response = await fetch("/api/v1/auth/refresh", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ refresh_token: refreshToken }),
 });
 const newTokens = await response.json();
@@ -498,5 +504,6 @@ const newTokens = await response.json();
 ## Support
 
 For integration support or to register your application:
+
 - Contact: platform-team@craftcrew.io
 - Documentation: https://docs.craftcrew.io/auth
