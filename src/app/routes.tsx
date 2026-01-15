@@ -19,6 +19,7 @@ import UsersPage from '../features/admin/pages/UsersPage'
 import RolesPage from '../features/admin/pages/RolesPage'
 import PermissionsPage from '../features/admin/pages/PermissionsPage'
 import TenantsPage from '../features/admin/pages/TenantsPage'
+import LogsPage from '../features/admin/pages/LogsPage'
 
 export const router = createBrowserRouter([
   {
@@ -122,6 +123,10 @@ export const router = createBrowserRouter([
           {
             path: 'tenants',
             element: <TenantsPage />,
+          },
+          {
+            path: 'audit',
+            element: <LogsPage />,
           },
         ],
       },

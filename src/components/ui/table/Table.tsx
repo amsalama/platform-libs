@@ -46,7 +46,7 @@ const tableRowVariants = cva(
 
 // Table header variants
 const tableHeaderVariants = cva(
-  'border-b bg-muted/40',
+  'border-b table-header',
   {
     variants: {
       sticky: {

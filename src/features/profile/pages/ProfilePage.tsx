@@ -1,21 +1,10 @@
 import { useAuthStore } from '@/stores/authStore'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Copy, User, Shield, Clock, Mail, Globe, Calendar, MapPin } from 'lucide-react'
-import { useState } from 'react'
+import { User, Shield, Clock, Mail, Globe, Calendar, MapPin } from 'lucide-react'
 
 export default function ProfilePage() {
-  const { user, accessToken, tokenExpiry } = useAuthStore()
-  const [copied, setCopied] = useState(false)
-
-  const handleCopyToken = async () => {
-    if (accessToken) {
-      await navigator.clipboard.writeText(accessToken)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
+  const { user, tokenExpiry } = useAuthStore()
 
   if (!user) {
     return (
@@ -140,7 +129,7 @@ export default function ProfilePage() {
           <CardDescription>Your current authentication session details</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
+          {/* <div>
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Access Token</label>
             <div className="flex gap-2">
               <code className="flex-1 rounded-md bg-muted px-3 py-2 text-xs font-mono overflow-x-auto">
@@ -156,7 +145,7 @@ export default function ProfilePage() {
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-muted-foreground">Token Expires</label>

@@ -1,10 +1,9 @@
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { useTenantStore } from '@/stores/tenantStore'
 import { useTenants } from '@/hooks/useTenants'
-import { Button } from '@/components/ui/button'
-import { LogOut, User, Settings, LayoutDashboard, Users, Shield, Key, Building2 } from 'lucide-react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Search, Bell, ChevronDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { ThemeToggle } from './ThemeToggle'
 import {
   Select,
@@ -13,22 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { cn } from '@/lib/utils'
-
-interface NavItem {
-  label: string
-  path: string
-  icon: React.ComponentType<{ className?: string }>
-  roles?: string[]
-  requiredAdminAccess?: boolean
-}
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 function Header() {
-  const { user, logout, isAuthenticated, hasAdminAccess, hasRole } = useAuthStore()
+  const { user, logout, isAuthenticated, hasAdminAccess } = useAuthStore()
   const { currentTenant, setCurrentTenant, clearCurrentTenant } = useTenantStore()
   const { data: tenants, error: tenantsError, isLoading: tenantsLoading } = useTenants()
   const navigate = useNavigate()
-  const location = useLocation()
 
   const handleLogout = async () => {
     try {
@@ -43,85 +39,16 @@ function Header() {
     return null
   }
 
-  const navItems: NavItem[] = useMemo(() => [
-    {
-      label: 'Dashboard',
-      path: '/admin',
-      icon: LayoutDashboard,
-      requiredAdminAccess: true,
-    },
-    {
-      label: 'Users',
-      path: '/admin/users',
-      icon: Users,
-      roles: ['admin', 'super_admin'],
-    },
-    {
-      label: 'Roles',
-      path: '/admin/roles',
-      icon: Shield,
-      roles: ['admin', 'super_admin'],
-    },
-    {
-      label: 'Permissions',
-      path: '/admin/permissions',
-      icon: Key,
-      roles: ['admin', 'super_admin'],
-    },
-    {
-      label: 'Tenants',
-      path: '/admin/tenants',
-      icon: Building2,
-      roles: ['super_admin'],
-    },
-  ], [])
-
-  const visibleNavItems = useMemo(() => navItems.filter(item => {
-    if (item.requiredAdminAccess && !hasAdminAccess()) return false
-    if (item.roles && !item.roles.some(role => hasRole(role))) return false
-    return true
-  }), [navItems, hasAdminAccess, hasRole])
-
-  const isActivePath = (path: string) => {
-    return location.pathname === path || (location.pathname.startsWith(`${path}/`) && path !== '/admin')
-  }
+  // PLACEHOLDER: Notification count
+  const notificationCount = 3
 
   return (
-    <header className="border-b bg-background">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-8">
-          <Link to="/" className="text-xl font-bold">
-            CraftCrew
-          </Link>
-          
-          {visibleNavItems.length > 0 && (
-            <nav className="flex space-x-1">
-              {visibleNavItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      'flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
-                      isActivePath(item.path)
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
-            </nav>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <ThemeToggle />
-
-          {hasAdminAccess() && (
+    <header className="h-20 bg-card border-b border-border flex items-center justify-between px-10">
+      {/* Left side - Search and tenant selector */}
+      <div className="flex items-center gap-4 flex-1">
+        {/* Tenant Selector (for admins) */}
+        {hasAdminAccess() && (
+          <>
             <Select
               value={currentTenant?.id || 'all'}
               onValueChange={(value) => {
@@ -134,8 +61,8 @@ function Header() {
               }}
               disabled={tenantsLoading}
             >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder={tenantsLoading ? 'Loading...' : 'Select tenant'} />
+              <SelectTrigger className="w-[180px] bg-transparent border-none">
+                <SelectValue placeholder={tenantsLoading ? 'Loading...' : 'All Tenants'} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Tenants</SelectItem>
@@ -150,23 +77,68 @@ function Header() {
                 ))}
               </SelectContent>
             </Select>
-          )}
 
-          <Link to="/settings">
-            <Button variant="ghost" size="icon" title="Settings">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </Link>
+            <div className="w-px h-10 bg-border" />
+          </>
+        )}
 
-          <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
-            <LogOut className="h-4 w-4" />
-          </Button>
-
-          <div className="flex items-center space-x-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">{user.name || user.email}</span>
-          </div>
+        {/* Search Bar */}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Search className="w-6 h-6" />
+          <span className="text-lg">Search here...</span>
         </div>
+      </div>
+
+      {/* Right side - Actions */}
+      <div className="flex items-center gap-4">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
+        <div className="w-px h-10 bg-border" />
+
+        {/* Notifications */}
+        <button className="relative p-2 hover:bg-muted rounded-lg transition-colors">
+          <Bell className="w-6 h-6" />
+          {notificationCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-destructive text-destructive-foreground text-xs font-medium rounded-full flex items-center justify-center">
+              {notificationCount}
+            </span>
+          )}
+        </button>
+
+        <div className="w-px h-10 bg-border" />
+
+        {/* User Profile */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-3 hover:bg-muted rounded-lg p-2 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-indigo-100 border border-indigo-300 flex items-center justify-center shrink-0">
+              <span className="text-primary font-semibold text-sm">
+                {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 
+                 user.email?.substring(0, 2).toUpperCase() || 'U'}
+              </span>
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-sm font-medium">{user.name || 'User'}</span>
+              <span className="text-xs text-muted-foreground">
+                {/* PLACEHOLDER: Role display */}
+                Administrator
+              </span>
+            </div>
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => navigate('/profile')}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   )
