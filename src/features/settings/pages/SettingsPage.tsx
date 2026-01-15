@@ -13,7 +13,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 container mx-auto px-4 py-6">
+    <div className="space-y-6 container mx-auto px-4 py-6">Account settings and preferences
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your preferences</p>
@@ -48,7 +48,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Account</CardTitle>
           <CardDescription>Account settings and preferences</CardDescription>
@@ -58,7 +58,7 @@ export default function SettingsPage() {
             Additional account settings coming soon.
           </p>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }
